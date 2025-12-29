@@ -1,11 +1,12 @@
 # app/modules/estudiantes/routes.py
-from flask import render_template, request, jsonify, flash, redirect, url_for
+from flask import render_template, request, jsonify, flash, redirect, url_for, send_file
 from flask_login import login_required, current_user
 from . import estudiantes_bp
 from app.models import Estudiante, SeguimientoRiesgo
 from .forms import EstudianteForm
 from datetime import datetime
 from app.extensions import db
+from app.services.export_service import ExportService
 
 @estudiantes_bp.route('/')
 @login_required
@@ -46,6 +47,43 @@ def detalle(estudiante_id):
     seguimientos = SeguimientoRiesgo.query.filter_by(
         estudiante_id=estudiante_id
     ).order_by(SeguimientoRiesgo.fecha_evaluacion.desc()).all()
+    
+    # Procesar factores_riesgo para convertir a diccionario accesible
+    for seg in seguimientos:
+        if seg.factores_riesgo is None:
+            seg.factores_riesgo = {}
+        elif isinstance(seg.factores_riesgo, list):
+            # Convertir lista de factores a diccionario
+            factores_dict = {}
+            for factor in seg.factores_riesgo:
+                if isinstance(factor, dict):
+                    nombre = factor.get('nombre', '').lower().replace(' ', '_')
+                    if 'asistencia' in nombre.lower():
+                        # Extraer porcentaje de la descripción
+                        desc = factor.get('descripcion', '')
+                        if '%' in desc:
+                            try:
+                                pct = float(desc.split('%')[0].split()[-1])
+                                factores_dict['asistencia'] = pct
+                            except:
+                                pass
+                    elif 'rendimiento' in nombre.lower() or 'promedio' in nombre.lower():
+                        desc = factor.get('descripcion', '')
+                        if '|' in desc:
+                            try:
+                                promedio = float(desc.split('|')[0].split(':')[-1].strip())
+                                factores_dict['promedio_calificaciones'] = promedio
+                            except:
+                                pass
+                    elif 'distribución' in nombre.lower():
+                        desc = factor.get('descripcion', '')
+                        if 'de' in desc:
+                            try:
+                                reprobadas = int(desc.split('de')[0].strip().split()[-1])
+                                factores_dict['materias_reprobadas'] = reprobadas
+                            except:
+                                pass
+            seg.factores_riesgo = factores_dict if factores_dict else {}
     
     return render_template('estudiantes/detalle.html',
                          estudiante=estudiante,
@@ -113,8 +151,7 @@ def crear():
             db.session.commit()
             
             flash('Estudiante creado exitosamente', 'success')
-            return redirect(url_for('estudiantes.index'))
-            
+            return redirect(url_for('estudiantes.index'))            
         except Exception as e:
             db.session.rollback()
             flash(f'Error al crear estudiante: {str(e)}', 'danger')
@@ -196,3 +233,61 @@ def eliminar(estudiante_id):
         flash(f'Error al eliminar estudiante: {str(e)}', 'danger')
     
     return redirect(url_for('estudiantes.index'))
+
+
+@estudiantes_bp.route('/exportar/excel')
+@login_required
+def exportar_excel():
+    """Exporta estudiantes a Excel"""
+    try:
+        estudiantes = Estudiante.query.filter_by(activo=True).all()
+        
+        # Obtener seguimientos
+        seguimientos_dict = {}
+        for est in estudiantes:
+            seg = SeguimientoRiesgo.query.filter_by(
+                estudiante_id=est.id
+            ).order_by(SeguimientoRiesgo.fecha_evaluacion.desc()).first()
+            if seg:
+                seguimientos_dict[est.id] = seg
+        
+        output = ExportService.exportar_estudiantes_excel(estudiantes, seguimientos_dict)
+        
+        return send_file(
+            output,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=f'estudiantes_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+        )
+    except Exception as e:
+        flash(f'Error exportando a Excel: {str(e)}', 'danger')
+        return redirect(url_for('estudiantes.index'))
+
+
+@estudiantes_bp.route('/exportar/csv')
+@login_required
+def exportar_csv():
+    """Exporta estudiantes a CSV"""
+    try:
+        estudiantes = Estudiante.query.filter_by(activo=True).all()
+        
+        # Obtener seguimientos
+        seguimientos_dict = {}
+        for est in estudiantes:
+            seg = SeguimientoRiesgo.query.filter_by(
+                estudiante_id=est.id
+            ).order_by(SeguimientoRiesgo.fecha_evaluacion.desc()).first()
+            if seg:
+                seguimientos_dict[est.id] = seg
+        
+        output = ExportService.exportar_estudiantes_csv(estudiantes, seguimientos_dict)
+        
+        return send_file(
+            output,
+            mimetype='text/csv',
+            as_attachment=True,
+            download_name=f'estudiantes_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+        )
+    except Exception as e:
+        flash(f'Error exportando a CSV: {str(e)}', 'danger')
+        return redirect(url_for('estudiantes.index'))

@@ -84,4 +84,8 @@ def create_app(config_name=None):
     from app.modules.asistencias import asistencias_bp
     app.register_blueprint(asistencias_bp)
     
+    # 12. Búsqueda Global
+    from app.modules.busqueda import busqueda_bp
+    app.register_blueprint(busqueda_bp)
+    
     return app

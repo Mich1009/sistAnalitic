@@ -2,135 +2,551 @@
 
 {% block title %}Detalle del Estudiante - Sistema de Seguimiento{% endblock %}
 
-{% block breadcrumb %}
-   
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('estudiantes.index') }}">Estudiantes</a></li>
+            <li class="breadcrumb-item active">Detalle del Estudiante</li>
+        </ol>
+    </nav>
 
-        <div class="row">
-            <!-- Información del Estudiante -->
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-user-graduate"></i>
-                            Información del Estudiante
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-sm-4 fw-bold">Código:</div>
-                            <div class="col-sm-8">{{ estudiante.codigo_estudiante }}</div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-sm-4 fw-bold">Nombres:</div>
-                            <div class="col-sm-8">{{ estudiante.nombres }}</div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-sm-4 fw-bold">Apellidos:</div>
-                            <div class="col-sm-8">{{ estudiante.apellidos }}</div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-sm-4 fw-bold">Email:</div>
-                            <div class="col-sm-8">{{ estudiante.email }}</div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-sm-4 fw-bold">Teléfono:</div>
-                            <div class="col-sm-8">{{ estudiante.telefono or 'No registrado' }}</div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-sm-4 fw-bold">Fecha Inscripción:</div>
-                            <div class="col-sm-8">{{ estudiante.fecha_inscripcion.strftime('%d/%m/%Y') }}</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-4 fw-bold">Estado:</div>
-                            <div class="col-sm-8">
-                                {% if estudiante.activo %}
-                                <span class="badge bg-success">Activo</span>
-                                {% else %}
-                                <span class="badge bg-danger">Inactivo</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
+    <div class="row">
+        <!-- Información del Estudiante -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-graduate"></i>
+                        Información del Estudiante
+                    </h5>
                 </div>
-            </div>
-
-            <!-- Historial de Riesgo -->
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-chart-line"></i>
-                            Seguimiento de Riesgo Académico
-                        </h5>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold"><i class="fas fa-id-card"></i> Código:</div>
+                        <div class="col-sm-8">{{ estudiante.codigo_estudiante }}</div>
                     </div>
-                    <div class="card-body">
-                        {% if seguimientos %}
-                            {% for seguimiento in seguimientos %}
-                            <div class="border-start border-4 
-                                {% if seguimiento.categoria_riesgo == 'ALERTA_ROJA' %}border-danger
-                                {% elif seguimiento.categoria_riesgo == 'ALERTA_AMARILLA' %}border-warning
-                                {% else %}border-success{% endif %} 
-                                ps-3 mb-3">
-                                <div class="d-flex justify-content-between">
-                                    <h6 class="mb-1">
-                                        Semestre {{ seguimiento.semestre }}
-                                    </h6>
-                                    <span class="badge 
-                                        {% if seguimiento.categoria_riesgo == 'ALERTA_ROJA' %}bg-danger
-                                        {% elif seguimiento.categoria_riesgo == 'ALERTA_AMARILLA' %}bg-warning
-                                        {% else %}bg-success{% endif %}">
-                                        {{ seguimiento.categoria_riesgo.replace('_', ' ') }}
-                                    </span>
-                                </div>
-                                <p class="mb-1 small">
-                                    <strong>Puntaje:</strong> {{ "%.2f"|format(seguimiento.puntaje_riesgo) }}
-                                </p>
-                                <p class="mb-1 small text-muted">
-                                    <strong>Evaluación:</strong> {{ seguimiento.fecha_evaluacion.strftime('%d/%m/%Y') }}
-                                </p>
-                                {% if seguimiento.observaciones %}
-                                <p class="mb-0 small">
-                                    <strong>Observaciones:</strong> {{ seguimiento.observaciones }}
-                                </p>
-                                {% endif %}
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="text-center text-muted py-3">
-                                <i class="fas fa-info-circle fa-2x mb-2"></i>
-                                <p>No hay registros de seguimiento para este estudiante</p>
-                            </div>
-                        {% endif %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold"><i class="fas fa-user"></i> Nombres:</div>
+                        <div class="col-sm-8">{{ estudiante.nombres }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold"><i class="fas fa-user"></i> Apellidos:</div>
+                        <div class="col-sm-8">{{ estudiante.apellidos }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold"><i class="fas fa-envelope"></i> Email:</div>
+                        <div class="col-sm-8">{{ estudiante.email }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold"><i class="fas fa-phone"></i> Teléfono:</div>
+                        <div class="col-sm-8">{{ estudiante.telefono or 'No registrado' }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold"><i class="fas fa-calendar-alt"></i> Inscripción:</div>
+                        <div class="col-sm-8">{{ estudiante.fecha_inscripcion.strftime('%d/%m/%Y') }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4 fw-bold"><i class="fas fa-check-circle"></i> Estado:</div>
+                        <div class="col-sm-8">
+                            {% if estudiante.activo %}
+                            <span class="badge bg-success"><i class="fas fa-check"></i> Activo</span>
+                            {% else %}
+                            <span class="badge bg-danger"><i class="fas fa-times"></i> Inactivo</span>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Botones de acción -->
+        <!-- Estado Actual de Riesgo -->
+        <div class="col-md-6">
+            {% if seguimientos %}
+                {% set seg = seguimientos[0] %}
+                <div class="card">
+                    <div class="card-header {% if seg.categoria_riesgo == 'ALERTA_ROJA' %}bg-danger{% elif seg.categoria_riesgo == 'ALERTA_AMARILLA' %}bg-warning text-dark{% else %}bg-success{% endif %} text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Estado Actual de Riesgo
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <h3 class="mb-2">
+                                {% if seg.categoria_riesgo == 'ALERTA_ROJA' %}
+                                    🔴 ALERTA ROJA
+                                {% elif seg.categoria_riesgo == 'ALERTA_AMARILLA' %}
+                                    🟡 ALERTA AMARILLA
+                                {% else %}
+                                    🟢 SIN RIESGO
+                                {% endif %}
+                            </h3>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar {% if seg.puntaje_riesgo >= 0.7 %}bg-danger{% elif seg.puntaje_riesgo >= 0.4 %}bg-warning{% else %}bg-success{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ seg.puntaje_riesgo * 100 }}%"
+                                     aria-valuenow="{{ seg.puntaje_riesgo * 100 }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    {{ "%.1f"|format(seg.puntaje_riesgo * 100) }}%
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-muted small">
+                            <i class="fas fa-calendar"></i> Evaluación: {{ seg.fecha_evaluacion.strftime('%d/%m/%Y') }}
+                        </p>
+
+                        <!-- Explicación del por qué está en alerta -->
+                        {% if seg.categoria_riesgo != 'SIN_RIESGO' %}
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-question-circle"></i> ¿Por qué está en alerta?
+                            </h6>
+                            <ul class="mb-0 small">
+                                {% if seg.factores_riesgo %}
+                                    {% set fr = seg.factores_riesgo %}
+                                    {% set found_reason = false %}
+                                    
+                                    {% if fr.get('asistencia') %}
+                                        {% set asist = fr.get('asistencia')|float %}
+                                        {% if asist < 75 %}
+                                        <li><strong>📅 Asistencia baja:</strong> {{ "%.1f"|format(asist) }}% (por debajo del 75%)</li>
+                                        {% set found_reason = true %}
+                                        {% endif %}
+                                    {% endif %}
+                                    
+                                    {% if fr.get('promedio_calificaciones') %}
+                                        {% set prom = fr.get('promedio_calificaciones')|float %}
+                                        {% if prom < 12 %}
+                                        <li><strong>📚 Promedio bajo:</strong> {{ "%.2f"|format(prom) }}/20 (por debajo de 12)</li>
+                                        {% set found_reason = true %}
+                                        {% endif %}
+                                    {% endif %}
+                                    
+                                    {% if fr.get('materias_reprobadas') %}
+                                        {% set mat_rep = fr.get('materias_reprobadas')|int %}
+                                        {% if mat_rep > 0 %}
+                                        <li><strong>📖 Materias reprobadas:</strong> {{ mat_rep }} materia(s)</li>
+                                        {% set found_reason = true %}
+                                        {% endif %}
+                                    {% endif %}
+                                    
+                                    {% if not found_reason %}
+                                    <li>Combinación de factores de riesgo detectada</li>
+                                    {% endif %}
+                                {% else %}
+                                    <li>Datos de factores no disponibles en este momento</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Factores de Riesgo Detallados - Solo para docentes/coordinadores -->
+    {% if current_user.rol in ['docente', 'coordinador'] %}
+    {% if seguimientos and seguimientos[0].factores_riesgo %}
+        {% set seg = seguimientos[0] %}
+        {% set fr = seg.factores_riesgo %}
         <div class="row mt-4">
             <div class="col-12">
-                <div class="d-flex gap-2">
-                    <a href="{{ url_for('estudiantes.index') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Volver a la lista
-                    </a>
-                     <!-- BOTONES NUEVOS: Editar y Eliminar -->
-            <a href="{{ url_for('estudiantes.editar', estudiante_id=estudiante.id) }}" 
-               class="btn btn-warning">
-                <i class="fas fa-edit"></i> Editar Estudiante
-            </a>
-            <form method="POST" action="{{ url_for('estudiantes.eliminar', estudiante_id=estudiante.id) }}" 
-                  class="d-inline" onsubmit="return confirm('¿Está seguro de eliminar este estudiante?');">
-                <button type="submit" class="btn btn-danger">
-                    <i class="fas fa-trash"></i> Eliminar Estudiante
-                </button>
-            </form>
-                    <a href="{{ url_for('estudiantes.en_riesgo') }}" class="btn btn-warning">
-                        <i class="fas fa-exclamation-triangle"></i> Ver todos en riesgo
-                    </a>
+                <div class="card shadow-sm">
+                    <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-pie"></i>
+                            Desglose de Factores de Riesgo
+                        </h5>
+                    </div>
+                    <div class="card-body" style="background-color: #f8f9fa;">
+                        <div class="row">
+                            <!-- Factor 1: Asistencia -->
+                            {% if fr.get('asistencia') %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <h6 class="card-title mb-0">
+                                                <i class="fas fa-calendar-check" style="color: #667eea;"></i> Asistencia
+                                            </h6>
+                                            {% set asist = fr.get('asistencia')|float %}
+                                            {% if asist >= 85 %}
+                                                <span class="badge" style="background-color: #10b981;">✓ Bien</span>
+                                            {% elif asist >= 75 %}
+                                                <span class="badge" style="background-color: #f59e0b;">⚠ Alerta</span>
+                                            {% else %}
+                                                <span class="badge" style="background-color: #ef4444;">✗ Crítico</span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="mt-3">
+                                            <div class="progress" style="height: 22px; background-color: #e5e7eb;">
+                                                <div class="progress-bar {% if asist >= 85 %}bg-success{% elif asist >= 75 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                     role="progressbar" 
+                                                     style="width: {{ asist }}%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);"
+                                                     aria-valuenow="{{ asist }}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                    <span style="color: white; font-weight: bold;">{{ "%.1f"|format(asist) }}%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <p class="small mt-3 mb-0" style="color: #6b7280;">
+                                            {% if asist >= 85 %}
+                                                ✓ Asistencia satisfactoria
+                                            {% elif asist >= 75 %}
+                                                ⚠ Necesita mejorar
+                                            {% else %}
+                                                ✗ Crítica - Intervención requerida
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Factor 2: Promedio -->
+                            {% if fr.get('promedio_calificaciones') %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <h6 class="card-title mb-0">
+                                                <i class="fas fa-star" style="color: #f59e0b;"></i> Promedio
+                                            </h6>
+                                            {% set prom = fr.get('promedio_calificaciones')|float %}
+                                            {% if prom >= 14 %}
+                                                <span class="badge" style="background-color: #10b981;">✓ Excelente</span>
+                                            {% elif prom >= 12 %}
+                                                <span class="badge" style="background-color: #3b82f6;">✓ Bueno</span>
+                                            {% elif prom >= 10 %}
+                                                <span class="badge" style="background-color: #f59e0b;">⚠ Regular</span>
+                                            {% else %}
+                                                <span class="badge" style="background-color: #ef4444;">✗ Deficiente</span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="mt-3">
+                                            <h4 class="text-center mb-2" style="color: #f59e0b;">{{ "%.2f"|format(prom) }}/20</h4>
+                                            <div class="progress" style="height: 22px; background-color: #e5e7eb;">
+                                                <div class="progress-bar" 
+                                                     role="progressbar" 
+                                                     style="width: {{ (prom / 20) * 100 }}%; background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);"
+                                                     aria-valuenow="{{ prom }}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="20">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <p class="small mt-3 mb-0" style="color: #6b7280;">
+                                            {% if prom >= 14 %}
+                                                ✓ Desempeño excelente
+                                            {% elif prom >= 12 %}
+                                                ✓ Desempeño satisfactorio
+                                            {% elif prom >= 10 %}
+                                                ⚠ Regular - Refuerzo recomendado
+                                            {% else %}
+                                                ✗ Deficiente - Intervención urgente
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Factor 3: Materias Reprobadas -->
+                            {% if fr.get('materias_reprobadas') is not none %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <h6 class="card-title mb-0">
+                                                <i class="fas fa-book" style="color: #ef4444;"></i> Reprobadas
+                                            </h6>
+                                            {% set mat_rep = fr.get('materias_reprobadas')|int %}
+                                            {% if mat_rep == 0 %}
+                                                <span class="badge" style="background-color: #10b981;">✓ Ninguna</span>
+                                            {% elif mat_rep <= 2 %}
+                                                <span class="badge" style="background-color: #f59e0b;">⚠ Algunas</span>
+                                            {% else %}
+                                                <span class="badge" style="background-color: #ef4444;">✗ Varias</span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="mt-3">
+                                            <h4 class="text-center mb-2" style="color: #ef4444;">{{ mat_rep }}</h4>
+                                            <p class="text-center small" style="color: #6b7280; font-weight: 500;">
+                                                {% if mat_rep == 0 %}
+                                                    Materias
+                                                {% elif mat_rep == 1 %}
+                                                    Materia
+                                                {% else %}
+                                                    Materias
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        
+                                        <p class="small mt-3 mb-0" style="color: #6b7280;">
+                                            {% if mat_rep == 0 %}
+                                                ✓ Sin reprobadas
+                                            {% elif mat_rep <= 2 %}
+                                                ⚠ Necesita recuperación
+                                            {% else %}
+                                                ✗ Crítica - Plan urgente
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Recomendaciones -->
+                        <div class="alert mt-4 mb-0" style="background-color: #dbeafe; border-color: #3b82f6; border-left: 4px solid #3b82f6;">
+                            <h6 class="alert-heading" style="color: #1e40af;">
+                                <i class="fas fa-lightbulb"></i> Recomendaciones de Acción
+                            </h6>
+                            <ul class="mb-0 small" style="color: #1e3a8a;">
+                                {% if fr.get('asistencia') and fr.get('asistencia')|float < 75 %}
+                                <li>📅 <strong>Asistencia:</strong> Contactar al estudiante. Considerar plan de seguimiento.</li>
+                                {% endif %}
+                                
+                                {% if fr.get('promedio_calificaciones') and fr.get('promedio_calificaciones')|float < 12 %}
+                                <li>📚 <strong>Rendimiento:</strong> Ofrecer tutorías. Revisar métodos de estudio.</li>
+                                {% endif %}
+                                
+                                {% if fr.get('materias_reprobadas') and fr.get('materias_reprobadas')|int > 0 %}
+                                <li>📖 <strong>Recuperación:</strong> Diseñar plan de recuperación. Evaluaciones adicionales.</li>
+                                {% endif %}
+                                
+                                {% if seg.categoria_riesgo == 'ALERTA_ROJA' %}
+                                <li>🚨 <strong>Acción Inmediata:</strong> Reunión urgente con estudiante y familia.</li>
+                                {% elif seg.categoria_riesgo == 'ALERTA_AMARILLA' %}
+                                <li>🔔 <strong>Seguimiento:</strong> Monitoreo quincenal. Establecer metas.</li>
+                                {% else %}
+                                <li>✅ <strong>Mantener:</strong> Continuar seguimiento regular.</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% endif %}
+
+    <!-- Historial de Seguimiento -->
+    {% if seguimientos %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history"></i>
+                        Historial de Seguimiento
+                    </h5>
+                </div>
+                <div class="card-body" style="background-color: #f8f9fa;">
+                    {% for seg in seguimientos %}
+                    <div class="border-start border-4 ps-3 mb-3
+                        {% if seg.categoria_riesgo == 'ALERTA_ROJA' %}border-danger
+                        {% elif seg.categoria_riesgo == 'ALERTA_AMARILLA' %}border-warning
+                        {% else %}border-success{% endif %}" style="background-color: white; padding: 15px; border-radius: 8px;">
+                        <div class="d-flex justify-content-between">
+                            <h6 class="mb-1">
+                                <i class="fas fa-calendar"></i> Semestre {{ seg.semestre }}
+                            </h6>
+                            <span class="badge 
+                                {% if seg.categoria_riesgo == 'ALERTA_ROJA' %}bg-danger
+                                {% elif seg.categoria_riesgo == 'ALERTA_AMARILLA' %}bg-warning
+                                {% else %}bg-success{% endif %}">
+                                {{ seg.categoria_riesgo.replace('_', ' ') }}
+                            </span>
+                        </div>
+                        <p class="mb-1 small">
+                            <i class="fas fa-chart-bar"></i> <strong>Puntaje:</strong> {{ "%.2f"|format(seg.puntaje_riesgo) }}
+                        </p>
+                        <p class="mb-1 small text-muted">
+                            <i class="fas fa-clock"></i> <strong>Evaluación:</strong> {{ seg.fecha_evaluacion.strftime('%d/%m/%Y') }}
+                        </p>
+                        {% if seg.observaciones %}
+                        <p class="mb-0 small">
+                            <i class="fas fa-sticky-note"></i> <strong>Observaciones:</strong> {{ seg.observaciones }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
+    {% endif %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Desempeño por Cursos - Solo para docentes/coordinadores -->
+    {% if current_user.rol in ['docente', 'coordinador'] %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-book-open"></i>
+                        Desempeño por Cursos
+                    </h5>
+                </div>
+                <div class="card-body" style="background-color: #f8f9fa;">
+                    {% set cursos_data = {} %}
+                    {% for seg in seguimientos %}
+                        {% if seg.factores_riesgo and seg.factores_riesgo.get('cursos') %}
+                            {% for curso in seg.factores_riesgo.get('cursos', []) %}
+                                {% if curso not in cursos_data %}
+                                    {% set _ = cursos_data.update({curso: {'aprobado': False, 'promedio': 0, 'evaluaciones': 0}}) %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% set inscripciones = estudiante.inscripciones %}
+                    {% if inscripciones %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead style="background-color: #e5e7eb;">
+                                <tr>
+                                    <th><i class="fas fa-book"></i> Curso</th>
+                                    <th><i class="fas fa-code"></i> Código</th>
+                                    <th><i class="fas fa-star"></i> Promedio</th>
+                                    <th><i class="fas fa-check-circle"></i> Estado</th>
+                                    <th><i class="fas fa-chart-line"></i> Evaluaciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for inscripcion in inscripciones %}
+                                    {% set curso = inscripcion.curso %}
+                                    {% set notas = inscripcion.notas %}
+                                    {% if notas %}
+                                        {% set promedio = (notas|map(attribute='nota')|map('float')|sum) / (notas|length) %}
+                                        {% set aprobado = promedio >= 12 %}
+                                    {% else %}
+                                        {% set promedio = 0 %}
+                                        {% set aprobado = false %}
+                                    {% endif %}
+                                    
+                                    <tr style="background-color: white;">
+                                        <td>
+                                            <strong>{{ curso.nombre_curso }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge" style="background-color: #667eea; color: white;">{{ curso.codigo_curso }}</span>
+                                        </td>
+                                        <td>
+                                            {% if notas %}
+                                                <strong style="{% if aprobado %}color: #10b981;{% else %}color: #ef4444;{% endif %}">
+                                                    {{ "%.2f"|format(promedio) }}/20
+                                                </strong>
+                                            {% else %}
+                                                <span class="text-muted">Sin calificaciones</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if notas %}
+                                                {% if aprobado %}
+                                                    <span class="badge" style="background-color: #10b981;">✓ Aprobado</span>
+                                                {% else %}
+                                                    <span class="badge" style="background-color: #ef4444;">✗ Reprobado</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="badge" style="background-color: #9ca3af;">En curso</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge" style="background-color: #3b82f6; color: white;">{{ notas|length }}</span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Resumen de Cursos -->
+                    <div class="row mt-4">
+                        {% set total_cursos = inscripciones|length %}
+                        {% set cursos_aprobados = inscripciones|selectattr('notas')|map(attribute='notas')|map('length')|select('>', 0)|list|length %}
+                        {% set cursos_reprobados = 0 %}
+                        {% for inscripcion in inscripciones %}
+                            {% if inscripcion.notas %}
+                                {% set prom = (inscripcion.notas|map(attribute='nota')|map('float')|sum) / (inscripcion.notas|length) %}
+                                {% if prom < 12 %}
+                                    {% set cursos_reprobados = cursos_reprobados + 1 %}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);">
+                                <div class="card-body text-center">
+                                    <h4 style="color: #1e40af;">{{ total_cursos }}</h4>
+                                    <p class="mb-0" style="color: #1e3a8a;"><strong>Total de Cursos</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);">
+                                <div class="card-body text-center">
+                                    <h4 style="color: #15803d;">{{ total_cursos - cursos_reprobados }}</h4>
+                                    <p class="mb-0" style="color: #166534;"><strong>Cursos Aprobados</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);">
+                                <div class="card-body text-center">
+                                    <h4 style="color: #991b1b;">{{ cursos_reprobados }}</h4>
+                                    <p class="mb-0" style="color: #7f1d1d;"><strong>Cursos Reprobados</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> No hay inscripciones registradas para este estudiante.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Botones de acción -->
+    <div class="row mt-4 mb-4">
+        <div class="col-12">
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ url_for('estudiantes.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+                <a href="{{ url_for('estudiantes.editar', estudiante_id=estudiante.id) }}" 
+                   class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <form method="POST" action="{{ url_for('estudiantes.eliminar', estudiante_id=estudiante.id) }}" 
+                      class="d-inline" onsubmit="return confirm('¿Eliminar?');">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                </form>
+                <a href="{{ url_for('estudiantes.en_riesgo') }}" class="btn btn-info">
+                    <i class="fas fa-exclamation-triangle"></i> Ver todos en riesgo
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}

@@ -357,9 +357,98 @@ def descargar(reporte_id):
         flash('No tiene permisos para acceder a este reporte', 'danger')
         return redirect(url_for('reportes.historial'))
     
-    if reporte.archivo_path and os.path.exists(reporte.archivo_path):
-        filename = f"reporte_{reporte.tipo_reporte}_{reporte.id}.pdf"
-        return send_file(reporte.archivo_path, as_attachment=True, download_name=filename)
+    # Verificar si el archivo existe
+    if reporte.archivo_path:
+        # Normalizar la ruta
+        archivo_path = os.path.normpath(reporte.archivo_path)
+        
+        if os.path.exists(archivo_path):
+            filename = f"reporte_{reporte.tipo_reporte}_{reporte.id}.pdf"
+            return send_file(archivo_path, as_attachment=True, download_name=filename)
+        else:
+            # Si el archivo no existe, intentar regenerarlo
+            try:
+                generator = ReportGenerator()
+                
+                if reporte.tipo_reporte == 'INDIVIDUAL_RIESGO':
+                    resultado = generator.generar_reporte_riesgo_individual(
+                        reporte.parametros.get('estudiante_id'),
+                        reporte.parametros.get('semestre')
+                    )
+                elif reporte.tipo_reporte == 'GENERAL_RIESGO':
+                    resultado = generator.generar_reporte_riesgo_general(
+                        reporte.parametros.get('semestre'),
+                        reporte.parametros.get('categoria_filtro')
+                    )
+                else:
+                    flash('Tipo de reporte no reconocido', 'danger')
+                    return redirect(url_for('reportes.historial'))
+                
+                # Regenerar PDF
+                config = get_pdf_config()
+                options = {
+                    'page-size': 'A4',
+                    'margin-top': '.5in',
+                    'margin-right': '1.0in',
+                    'margin-bottom': '1.0in',
+                    'margin-left': '1.0in',
+                    'encoding': "UTF-8",
+                    'no-outline': None,
+                    'enable-local-file-access': None,
+                    'dpi': 300,
+                    'print-media-type': None
+                }
+                
+                pdf = pdfkit.from_string(resultado['html'], False, configuration=config, options=options)
+                
+                # Guardar PDF
+                filename = f"reporte_{reporte.tipo_reporte}_{reporte.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+                filepath = os.path.join(generator.reports_dir, filename)
+                
+                with open(filepath, 'wb') as f:
+                    f.write(pdf)
+                
+                # Actualizar ruta en BD
+                reporte.archivo_path = filepath
+                db.session.commit()
+                
+                return send_file(filepath, as_attachment=True, download_name=filename)
+                
+            except Exception as e:
+                flash(f'Error regenerando reporte: {str(e)}', 'danger')
+                return redirect(url_for('reportes.historial'))
     else:
-        flash('El archivo del reporte no está disponible', 'warning')
-        return redirect(url_for('reportes.historial'))
+        # Si no hay ruta guardada, intentar regenerar desde el contenido HTML
+        try:
+            generator = ReportGenerator()
+            config = get_pdf_config()
+            
+            options = {
+                'page-size': 'A4',
+                'margin-top': '.5in',
+                'margin-right': '1.0in',
+                'margin-bottom': '1.0in',
+                'margin-left': '1.0in',
+                'encoding': "UTF-8",
+                'no-outline': None,
+                'enable-local-file-access': None,
+                'dpi': 300,
+                'print-media-type': None
+            }
+            
+            pdf = pdfkit.from_string(reporte.contenido, False, configuration=config, options=options)
+            
+            filename = f"reporte_{reporte.tipo_reporte}_{reporte.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            filepath = os.path.join(generator.reports_dir, filename)
+            
+            with open(filepath, 'wb') as f:
+                f.write(pdf)
+            
+            reporte.archivo_path = filepath
+            db.session.commit()
+            
+            return send_file(filepath, as_attachment=True, download_name=filename)
+            
+        except Exception as e:
+            flash(f'Error generando reporte: {str(e)}. Verifique que wkhtmltopdf esté instalado.', 'danger')
+            return redirect(url_for('reportes.historial'))

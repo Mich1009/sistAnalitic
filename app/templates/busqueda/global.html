@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Búsqueda Global - SADES{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Búsqueda Global</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-search"></i> Búsqueda Global
+            </h2>
+
+            <!-- Formulario de búsqueda -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="GET" class="d-flex gap-2">
+                        <input type="text" name="q" class="form-control" 
+                               placeholder="Buscar estudiantes, cursos, reportes..." 
+                               value="{{ query }}" autofocus>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {% if query %}
+                <!-- Resultados -->
+                <div class="row">
+                    <!-- Estudiantes -->
+                    {% if resultados.estudiantes %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-user-graduate"></i> Estudiantes ({{ resultados.estudiantes|length }})
+                                </h5>
+                            </div>
+                            <div class="list-group list-group-flush">
+                                {% for est in resultados.estudiantes %}
+                                <a href="{{ url_for('estudiantes.detalle', estudiante_id=est.id) }}" 
+                                   class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>{{ est.codigo_estudiante }}</strong>
+                                        <small class="text-muted">{{ est.nombres }}</small>
+                                    </div>
+                                    <small>{{ est.email }}</small>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Cursos -->
+                    {% if resultados.cursos %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-book"></i> Cursos ({{ resultados.cursos|length }})
+                                </h5>
+                            </div>
+                            <div class="list-group list-group-flush">
+                                {% for curso in resultados.cursos %}
+                                <a href="{{ url_for('cursos.detalle', curso_id=curso.id) }}" 
+                                   class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>{{ curso.codigo_curso }}</strong>
+                                        <small class="text-muted">{{ curso.semestre }}</small>
+                                    </div>
+                                    <small>{{ curso.nombre_curso }}</small>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Reportes -->
+                    {% if resultados.reportes %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <div class="card-header bg-warning text-dark">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-file-pdf"></i> Reportes ({{ resultados.reportes|length }})
+                                </h5>
+                            </div>
+                            <div class="list-group list-group-flush">
+                                {% for reporte in resultados.reportes %}
+                                <a href="{{ url_for('reportes.historial') }}" 
+                                   class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>{{ reporte.titulo }}</strong>
+                                        <small class="text-muted">{{ reporte.tipo_reporte }}</small>
+                                    </div>
+                                    <small>{{ reporte.fecha_generacion.strftime('%d/%m/%Y') }}</small>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if resultados.total == 0 %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    No se encontraron resultados para "{{ query }}"
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-secondary">
+                    <i class="fas fa-search"></i>
+                    Ingresa un término de búsqueda para comenzar
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
